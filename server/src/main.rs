@@ -1,11 +1,10 @@
 extern crate server_lib;
 
 use server_lib::types::{*};
-use server_lib::types::Intersection::{*};
+use server_lib::offline_engine;
 
 fn main() {
-	let mut goban = Goban::new(GobanSize::Small);
+	let game_state = GameState::new(GobanSize::Small, GameType::PlayerVsPlayer, StartConditions::Standard);
 
-	goban.play(Player1, (5, 5)).unwrap();
-	println!("{}", goban);
+	offline_engine::game_loop(game_state);
 }

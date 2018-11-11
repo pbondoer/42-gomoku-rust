@@ -1,6 +1,17 @@
 use std::fmt;
 
-use types::{Goban, GobanSize, Intersection, Size};
+use types::{*};
+
+//Intersection Display Trait
+impl fmt::Display for Intersection {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match self {
+			Intersection::Player1 => write!(f, "Player1"),
+			Intersection::Player2 => write!(f, "Player2"),
+			Intersection::None => write!(f, "None"),
+		}
+	}
+}
 
 //Goban Display Trait
 const UP_LEFT : char = '\u{2554}';
@@ -99,23 +110,26 @@ impl fmt::Display for Goban {
 
 //Goban Methods
 pub static ERR_OUTSIDE_BOARD : &'static str = "Move outside goban board";
+pub static ERR_NOT_EMPTY : &'static str = "Intersection is not empty";
 
 impl Goban {
 	pub fn new (size : GobanSize) -> Goban {
 		Goban { size : size as Size, board : vec![Intersection::None; size as Size * size as Size]}
 	}
 
-	//TODO : implement invalid move detection 
-	fn is_move_valid(_goban : &Goban, _pos : Size) -> Result<(), &'static str> {
-		Ok(())
+	//TODO : implement other case of invalid move detection 
+	fn is_move_valid(goban : &Goban, pos : Size) -> Result<(), &'static str> {
+		match goban.board.get(pos) {
+			Some(Intersection::None) => Ok(()),
+			Some(_) => Err(ERR_NOT_EMPTY),
+			None => return Err(ERR_OUTSIDE_BOARD),
+		}
 	}
 
 	//pos Tuple => 0 = line | 1 = column
-	pub fn play (&mut self, player : Intersection, pos : (Size, Size)) -> Result<(), &'static str> {
+	pub fn play (&mut self, player : Intersection, pos : Move) -> Result<(), &'static str> {
 		let board_pos = pos.0 * self.size + pos.1;
-		if let None = self.board.get(board_pos) {
-			return Err(ERR_OUTSIDE_BOARD);
-		}
+
 		Goban::is_move_valid(&self, board_pos)?;
 		self.board[board_pos] = player;
 		Ok(())
@@ -136,7 +150,6 @@ mod tests {
 		assert_eq!(goban.size, GobanSize::Small as Size);
 		assert_eq!(None, *goban.board.get(GobanSize::Small as Size * GobanSize::Small as Size - 1).unwrap());
 	}
-
 
 	#[test]
 	fn out_of_bound_play() {

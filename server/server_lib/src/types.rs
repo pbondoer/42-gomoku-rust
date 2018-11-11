@@ -7,6 +7,7 @@ pub enum Intersection {
 
 pub type Size = usize;
 pub type Board = Vec<Intersection>;
+pub type Move = (Size, Size);
 
 #[derive(Copy, Clone)]
 pub enum GobanSize {
@@ -18,4 +19,26 @@ pub enum GobanSize {
 pub struct Goban {
 	pub size : Size,
 	pub board : Board,
+}
+
+pub enum StartConditions {
+	Standard,
+	Pro,
+	LongPro,
+	Swap,
+	Swap2,
+}
+
+pub enum GameType {
+	PlayerVsPlayer,
+	PlayerVsComputer,
+	ComputerVsComputer,
+}
+
+pub struct GameState {
+	pub goban : Goban,
+	pub game_type : GameType,
+	pub start_cond : StartConditions,
+	pub turn : Size,
+	pub player : Intersection,
 }
