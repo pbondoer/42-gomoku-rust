@@ -1,5 +1,5 @@
 [package]
-name = "server"
+name = "server_lib"
 version = "0.1.0"
 authors = [
 	"cledant <cledant@student.42.fr>",
@@ -7,7 +7,6 @@ authors = [
 ]
 
 [dependencies]
-server_lib = { path = "./server_lib" }
 
 [profile.release]
 lto = true
