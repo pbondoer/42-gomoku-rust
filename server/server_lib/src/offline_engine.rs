@@ -1,4 +1,6 @@
 use std::process;
+use std::io;
+use std::io::prelude::*;
 
 use types::Intersection::*;
 use types::*;
@@ -15,10 +17,45 @@ impl GameState {
     }
 }
 
-//TODO
+pub static ERR_INVALID_NUMBER : &'static str = "Error : Invalid Number";
+pub static ERR_STDIN_FAILED : &'static str = "Error : failed to read stdin";
+
+fn parse_nb_from_stdin() -> Result<Size, &'static str> {
+	let stdin = io::stdin();
+	let it = stdin.lock().lines().next(); 
+	if let Ok(line) = it.unwrap() {
+		if let Ok(nb) = line.parse::<Size>() {
+			Ok(nb)
+		} else {
+			Err(ERR_INVALID_NUMBER)
+		}
+	} else {
+		Err(ERR_STDIN_FAILED)
+	}
+}
+
 fn parse_input() -> Move {
-    println!("Always 0,0");
-    (0, 0)
+	let mut loop_read = true;
+	let mut play : Move = (0, 0);
+	
+	while loop_read {
+		println!("Input line");
+		match parse_nb_from_stdin() {
+			Ok(nb) => {	play.0 = nb;
+						loop_read = false; },
+			Err(err) => println!("{}", err),
+		}
+	}
+	loop_read = true;
+	while loop_read {
+		println!("Input column");
+		match parse_nb_from_stdin() {
+			Ok(nb) => {	play.1 = nb;
+						loop_read = false; },
+			Err(err) => println!("{}", err),
+		}
+	}
+	play
 }
 
 //TODO
