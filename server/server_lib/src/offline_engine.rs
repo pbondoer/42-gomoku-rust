@@ -1,6 +1,6 @@
-use std::process;
 use std::io;
 use std::io::prelude::*;
+use std::process;
 
 use types::Intersection::*;
 use types::*;
@@ -17,45 +17,51 @@ impl GameState {
     }
 }
 
-pub static ERR_INVALID_NUMBER : &'static str = "Error : Invalid Number";
-pub static ERR_STDIN_FAILED : &'static str = "Error : failed to read stdin";
+pub static ERR_INVALID_NUMBER: &'static str = "Error : Invalid Number";
+pub static ERR_STDIN_FAILED: &'static str = "Error : failed to read stdin";
+pub static ERR_EMPTY_LINE: &'static str = "Error : empty string";
 
 fn parse_nb_from_stdin() -> Result<Size, &'static str> {
-	let stdin = io::stdin();
-	let it = stdin.lock().lines().next(); 
-	if let Ok(line) = it.unwrap() {
-		if let Ok(nb) = line.parse::<Size>() {
-			Ok(nb)
-		} else {
-			Err(ERR_INVALID_NUMBER)
-		}
-	} else {
-		Err(ERR_STDIN_FAILED)
-	}
+    let stdin = io::stdin();
+    let it = stdin.lock().lines().next();
+    match it {
+        Some(line) => match line {
+            Ok(s) => match s.parse::<Size>() {
+                Ok(nb) => Ok(nb),
+                Err(_) => Err(ERR_INVALID_NUMBER),
+            },
+            Err(_) => Err(ERR_STDIN_FAILED),
+        },
+        Option::None => Err(ERR_EMPTY_LINE),
+    }
 }
 
 fn parse_input() -> Move {
-	let mut loop_read = true;
-	let mut play : Move = (0, 0);
-	
-	while loop_read {
-		println!("Input line");
-		match parse_nb_from_stdin() {
-			Ok(nb) => {	play.0 = nb;
-						loop_read = false; },
-			Err(err) => println!("{}", err),
-		}
-	}
-	loop_read = true;
-	while loop_read {
-		println!("Input column");
-		match parse_nb_from_stdin() {
-			Ok(nb) => {	play.1 = nb;
-						loop_read = false; },
-			Err(err) => println!("{}", err),
-		}
-	}
-	play
+    let mut loop_read = true;
+    let mut play: Move = (0, 0);
+
+    while loop_read {
+        println!("Input line");
+        match parse_nb_from_stdin() {
+            Ok(nb) => {
+                play.0 = nb;
+                loop_read = false;
+            }
+            Err(err) => println!("{}", err),
+        }
+    }
+    loop_read = true;
+    while loop_read {
+        println!("Input column");
+        match parse_nb_from_stdin() {
+            Ok(nb) => {
+                play.1 = nb;
+                loop_read = false;
+            }
+            Err(err) => println!("{}", err),
+        }
+    }
+    play
 }
 
 //TODO
