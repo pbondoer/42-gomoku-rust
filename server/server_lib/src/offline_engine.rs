@@ -64,8 +64,43 @@ fn parse_input() -> Move {
     play
 }
 
-//TODO
-fn check_victory(_goban: &Goban) -> bool {
+#[inline]
+fn check_line_right(goban: &Goban, array_index: Size) -> bool {
+    let player = goban.board.get(array_index).unwrap();
+    if array_index / goban.size != ((array_index + 5) / goban.size) {
+        return false;
+    }
+    for i in array_index + 1..array_index + 5 {
+        match goban.board.get(i) {
+            Some(val) => {
+                if val != player {
+                    return false;
+                }
+            }
+            Option::None => return false,
+        }
+    }
+    true
+}
+
+fn check_victory(goban: &Goban) -> bool {
+    for i in 0..goban.size {
+        if let Some(Intersection::None) = goban.board.get(i) {
+            continue;
+        }
+        if check_line_right(&goban, i) == true {
+            return true;
+        }
+        /*		if check_column_down(goban, i) == true {
+			true
+		}
+		if check_diagonal_down_right(goban, i) == true {
+			true
+		}
+		if check_diagonal_dowm_left(goban, i) == true {
+			true
+		}*/
+    }
     false
 }
 
@@ -97,5 +132,57 @@ pub fn game_loop(mut game_state: GameState) {
             }
         }
         game_state.turn += 1;
+    }
+}
+
+//Tests
+#[cfg(test)]
+mod tests {
+    use offline_engine::*;
+
+    #[test]
+    fn correct_line() {
+        let mut goban = Goban::new(GobanSize::Small);
+        for i in 0..5 {
+            goban.board[i] = Player1;
+        }
+        assert_eq!(true, check_line_right(&goban, 0))
+    }
+
+    #[test]
+    fn incorrect_line_1() {
+        let mut goban = Goban::new(GobanSize::Small);
+        for i in 0..4 {
+            goban.board[i] = Player1;
+        }
+        assert_eq!(false, check_line_right(&goban, 0))
+    }
+
+    #[test]
+    fn incorrect_line_2() {
+        let mut goban = Goban::new(GobanSize::Small);
+        for i in 1..6 {
+            goban.board[i] = Player1;
+        }
+        assert_eq!(false, check_line_right(&goban, 0))
+    }
+
+    #[test]
+    fn incorrect_line_3() {
+        let mut goban = Goban::new(GobanSize::Small);
+        for i in 0..5 {
+            goban.board[i] = Player1;
+        }
+        goban.board[2] = Player2;
+        assert_eq!(false, check_line_right(&goban, 0))
+    }
+
+    #[test]
+    fn incorrect_line_4() {
+        let mut goban = Goban::new(GobanSize::Small);
+        for i in 7..20 {
+            goban.board[i] = Player1;
+        }
+        assert_eq!(false, check_line_right(&goban, 7))
     }
 }
