@@ -83,6 +83,23 @@ fn check_line_right(goban: &Goban, array_index: Size) -> bool {
     true
 }
 
+#[inline]
+fn check_column_down(goban: &Goban, array_index: Size) -> bool {
+    let player = goban.board.get(array_index).unwrap();
+    for i in 1..5 {
+        match goban.board.get(array_index + i * goban.size) {
+            Some(val) => {
+                if val != player {
+                    return false;
+                }
+            }
+            Option::None => return false,
+        }
+    }
+    true
+}
+
+#[inline]
 fn check_victory(goban: &Goban) -> bool {
     for i in 0..goban.size {
         if let Some(Intersection::None) = goban.board.get(i) {
@@ -91,14 +108,14 @@ fn check_victory(goban: &Goban) -> bool {
         if check_line_right(&goban, i) == true {
             return true;
         }
-        /*		if check_column_down(goban, i) == true {
-			true
-		}
-		if check_diagonal_down_right(goban, i) == true {
-			true
+        if check_column_down(&goban, i) == true {
+            return true;
+        }
+        /*if check_diagonal_down_right(goban, i) == true {
+			return true;
 		}
 		if check_diagonal_dowm_left(goban, i) == true {
-			true
+			return true;
 		}*/
     }
     false
@@ -117,10 +134,7 @@ pub fn game_loop(mut game_state: GameState) {
             }
         }
         if check_victory(&game_state.goban) == true {
-            println!(
-                "Winner player {} at turn {}",
-                game_state.player, game_state.turn
-            );
+            println!("Winner {} at turn {}", game_state.player, game_state.turn);
             break;
         }
         match game_state.player {
@@ -184,5 +198,51 @@ mod tests {
             goban.board[i] = Player1;
         }
         assert_eq!(false, check_line_right(&goban, 7))
+    }
+
+    #[test]
+    fn correct_column() {
+        let mut goban = Goban::new(GobanSize::Small);
+        for i in 0..5 {
+            goban.board[i * goban.size] = Player2;
+        }
+        assert_eq!(true, check_column_down(&goban, 0))
+    }
+
+    #[test]
+    fn incorrect_column_1() {
+        let mut goban = Goban::new(GobanSize::Small);
+        for i in 0..4 {
+            goban.board[i * goban.size] = Player2;
+        }
+        assert_eq!(false, check_column_down(&goban, 0))
+    }
+
+    #[test]
+    fn incorrect_column_2() {
+        let mut goban = Goban::new(GobanSize::Small);
+        for i in 0..5 {
+            goban.board[i * goban.size] = Player2;
+        }
+        assert_eq!(false, check_column_down(&goban, goban.size))
+    }
+
+    #[test]
+    fn incorrect_column_3() {
+        let mut goban = Goban::new(GobanSize::Small);
+        for i in 0..5 {
+            goban.board[i * goban.size] = Player2;
+        }
+        goban.board[goban.size * 2] = Player1;
+        assert_eq!(false, check_column_down(&goban, 0))
+    }
+
+    #[test]
+    fn incorrect_column_4() {
+        let mut goban = Goban::new(GobanSize::Small);
+        for i in 5..8 {
+            goban.board[i * goban.size] = Player2;
+        }
+        assert_eq!(false, check_column_down(&goban, 5 * goban.size))
     }
 }
