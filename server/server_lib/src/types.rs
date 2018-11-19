@@ -41,4 +41,14 @@ pub struct GameState {
     pub start_cond: StartConditions,
     pub turn: Size,
     pub player: Intersection,
+	pub p1_stone_taken : Size,
+	pub p2_stone_taken : Size,
+	pub debug : bool,
+}
+
+pub struct GameArgs {
+	pub board_size : GobanSize,
+	pub game_type : GameType,
+	pub start_cond : StartConditions,
+	pub debug : bool,	
 }
