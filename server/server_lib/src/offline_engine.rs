@@ -27,6 +27,7 @@ impl GameState {
 			p1_stone_taken : 0,
 			p2_stone_taken : 0,
 			debug : game_args.debug,
+			used_intersection : 0,
         }
     }
 }
@@ -35,6 +36,7 @@ pub static ERR_INVALID_NUMBER: &'static str = "Error : Invalid Number";
 pub static ERR_STDIN_FAILED: &'static str = "Error : failed to read stdin";
 pub static ERR_EMPTY_LINE: &'static str = "Error : empty string";
 
+#[inline]
 fn parse_nb_from_stdin() -> Result<Size, &'static str> {
     let stdin = io::stdin();
     let it = stdin.lock().lines().next();
@@ -50,6 +52,7 @@ fn parse_nb_from_stdin() -> Result<Size, &'static str> {
     }
 }
 
+#[inline]
 fn parse_input() -> Move {
     let mut loop_read = true;
     let mut play: Move = (0, 0);
@@ -156,7 +159,7 @@ fn check_diagonal_down_left(goban: &Goban, array_index: Size) -> bool {
 }
 
 #[inline]
-fn check_victory(goban: &Goban) -> bool {
+fn check_board_victory(goban: &Goban) -> bool {
     for i in 0..goban.size {
         if let Some(Intersection::None) = goban.board.get(i) {
             continue;
@@ -189,10 +192,21 @@ pub fn game_loop(mut game_state: GameState) {
                 Err(err) => println!("Error : {}", err),
             }
         }
-        if check_victory(&game_state.goban) == true {
+		//TODO : change this when capture detection added
+		game_state.used_intersection += 1;
+		if (game_state.player == Player1 && game_state.p1_stone_taken >= STONE_TAKEN_MAX) || 
+			(game_state.player == Player1 && game_state.p2_stone_taken >= STONE_TAKEN_MAX) {
             println!("Winner {} at turn {}", game_state.player, game_state.turn);
-            break;
+            process::exit(1)
+		}
+        if check_board_victory(&game_state.goban) == true {
+            println!("Winner {} at turn {}", game_state.player, game_state.turn);
+            process::exit(1)
         }
+		if game_state.used_intersection >= game_state.goban.size {
+            println!("Draw at turn {}", game_state.turn);
+            process::exit(1)
+		}
         match game_state.player {
             Player1 => game_state.player = Player2,
             Player2 => game_state.player = Player1,

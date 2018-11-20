@@ -5,6 +5,8 @@ pub enum Intersection {
     None,
 }
 
+pub static STONE_TAKEN_MAX : Size = 10;
+
 pub type Size = usize;
 pub type Board = Vec<Intersection>;
 pub type Move = (Size, Size);
@@ -44,6 +46,7 @@ pub struct GameState {
 	pub p1_stone_taken : Size,
 	pub p2_stone_taken : Size,
 	pub debug : bool,
+	pub used_intersection : Size,
 }
 
 pub struct GameArgs {
