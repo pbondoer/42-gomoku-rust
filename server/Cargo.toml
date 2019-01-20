@@ -5,6 +5,7 @@ authors = [
 	"cledant <cledant@student.42.fr>",
 	"pbondoer <pbondoer@student.42.fr>",
 ]
+edition = "2018"
 
 [dependencies]
 server_lib = { path = "./server_lib" }
