@@ -222,7 +222,7 @@ pub fn game_loop(mut game_state: GameState) {
 //Tests
 #[cfg(test)]
 mod tests {
-    use offline_engine::*;
+    use crate::offline_engine::*;
 
     #[test]
     fn correct_line() {

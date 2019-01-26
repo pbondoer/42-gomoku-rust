@@ -142,9 +142,9 @@ impl Goban {
 //Tests
 #[cfg(test)]
 mod tests {
-    use goban::*;
-    use types::Intersection::*;
-    use types::{Goban, GobanSize, Size};
+    use crate::goban::*;
+    use crate::types::Intersection::*;
+    use crate::types::{Goban, GobanSize, Size};
 
     #[test]
     fn new_working() {
