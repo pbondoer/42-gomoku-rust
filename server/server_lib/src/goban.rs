@@ -125,7 +125,7 @@ impl Goban {
         match goban.board.get(pos) {
             Some(Intersection::None) => Ok(()),
             Some(_) => Err(ERR_NOT_EMPTY),
-            None => return Err(ERR_OUTSIDE_BOARD),
+            None => Err(ERR_OUTSIDE_BOARD),
         }
     }
 
@@ -153,10 +153,7 @@ mod tests {
         assert_eq!(goban.size, GobanSize::Small as Size);
         assert_eq!(
             None,
-            *goban
-                .board
-                .get(GobanSize::Small as Size * GobanSize::Small as Size - 1)
-                .unwrap()
+            goban.board[GobanSize::Small as Size * GobanSize::Small as Size - 1]
         );
     }
 

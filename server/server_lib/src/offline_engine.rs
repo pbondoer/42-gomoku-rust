@@ -7,6 +7,12 @@ use crate::types::*;
 
 impl GameArgs {
     pub fn new() -> GameArgs {
+        Default::default()
+    }
+}
+
+impl Default for GameArgs {
+    fn default() -> GameArgs {
         GameArgs {
             board_size: GobanSize::Large,
             game_type: GameType::PlayerVsPlayer,
@@ -83,14 +89,14 @@ fn parse_input() -> Move {
 
 #[inline]
 fn check_line_right(goban: &Goban, array_index: Size) -> bool {
-    let player = goban.board.get(array_index).unwrap();
+    let player = goban.board[array_index];
     if array_index / goban.size != ((array_index + 5) / goban.size) {
         return false;
     }
     for i in array_index + 1..array_index + 5 {
         match goban.board.get(i) {
             Some(val) => {
-                if val != player {
+                if *val != player {
                     return false;
                 }
             }
@@ -102,11 +108,11 @@ fn check_line_right(goban: &Goban, array_index: Size) -> bool {
 
 #[inline]
 fn check_column_down(goban: &Goban, array_index: Size) -> bool {
-    let player = goban.board.get(array_index).unwrap();
+    let player = goban.board[array_index];
     for i in 1..5 {
         match goban.board.get(array_index + i * goban.size) {
             Some(val) => {
-                if val != player {
+                if *val != player {
                     return false;
                 }
             }
@@ -118,7 +124,7 @@ fn check_column_down(goban: &Goban, array_index: Size) -> bool {
 
 #[inline]
 fn check_diagonal_down_right(goban: &Goban, array_index: Size) -> bool {
-    let player = goban.board.get(array_index).unwrap();
+    let player = goban.board[array_index];
     let start_line = array_index / goban.size;
     for i in 1..5 {
         let new_index = array_index + i * goban.size + i;
@@ -127,7 +133,7 @@ fn check_diagonal_down_right(goban: &Goban, array_index: Size) -> bool {
         }
         match goban.board.get(new_index) {
             Some(val) => {
-                if val != player {
+                if *val != player {
                     return false;
                 }
             }
@@ -139,7 +145,7 @@ fn check_diagonal_down_right(goban: &Goban, array_index: Size) -> bool {
 
 #[inline]
 fn check_diagonal_down_left(goban: &Goban, array_index: Size) -> bool {
-    let player = goban.board.get(array_index).unwrap();
+    let player = goban.board[array_index];
     let start_line = array_index / goban.size;
     for i in 1..5 {
         let new_index = array_index + i * goban.size - i;
@@ -148,7 +154,7 @@ fn check_diagonal_down_left(goban: &Goban, array_index: Size) -> bool {
         }
         match goban.board.get(array_index + i * goban.size - i) {
             Some(val) => {
-                if val != player {
+                if *val != player {
                     return false;
                 }
             }
@@ -164,16 +170,16 @@ fn check_board_victory(goban: &Goban) -> bool {
         if let Some(Intersection::None) = goban.board.get(i) {
             continue;
         }
-        if check_line_right(&goban, i) == true {
+        if check_line_right(&goban, i) {
             return true;
         }
-        if check_column_down(&goban, i) == true {
+        if check_column_down(&goban, i) {
             return true;
         }
-        if check_diagonal_down_right(goban, i) == true {
+        if check_diagonal_down_right(goban, i) {
             return true;
         }
-        if check_diagonal_down_left(goban, i) == true {
+        if check_diagonal_down_left(goban, i) {
             return true;
         }
     }
@@ -195,12 +201,12 @@ pub fn game_loop(mut game_state: GameState) {
         //TODO : change this when capture detection added
         game_state.used_intersection += 1;
         if (game_state.player == Player1 && game_state.p1_stone_taken >= STONE_TAKEN_MAX)
-            || (game_state.player == Player1 && game_state.p2_stone_taken >= STONE_TAKEN_MAX)
+            || (game_state.player == Player2 && game_state.p2_stone_taken >= STONE_TAKEN_MAX)
         {
             println!("Winner {} at turn {}", game_state.player, game_state.turn);
             process::exit(1)
         }
-        if check_board_victory(&game_state.goban) == true {
+        if check_board_victory(&game_state.goban) {
             println!("Winner {} at turn {}", game_state.player, game_state.turn);
             process::exit(1)
         }
