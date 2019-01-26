@@ -116,6 +116,10 @@ impl Goban {
     pub fn play(&mut self, player: Intersection, pos: Move) -> Result<(), &'static str> {
         let board_pos = pos.0 * self.size + pos.1;
 
+        if pos.0 >= self.size || pos.1 >= self.size {
+            return Err(ERR_OUTSIDE_BOARD)
+        }
+
         Goban::is_move_valid(&self, board_pos)?;
         self.board[board_pos] = player;
         Ok(())
@@ -141,11 +145,19 @@ mod tests {
     }
 
     #[test]
-    fn out_of_bound_play() {
+    fn out_of_bound_play_x() {
         let mut goban = Goban::new(GobanSize::Medium);
 
         assert_eq!(goban.size, GobanSize::Medium as Size);
         assert_eq!(Err(ERR_OUTSIDE_BOARD), goban.play(Player1, (14, 0)));
+    }
+
+    #[test]
+    fn out_of_bound_play_y() {
+        let mut goban = Goban::new(GobanSize::Medium);
+
+        assert_eq!(goban.size, GobanSize::Medium as Size);
+        assert_eq!(Err(ERR_OUTSIDE_BOARD), goban.play(Player1, (0, 14)));
     }
 
     #[test]
