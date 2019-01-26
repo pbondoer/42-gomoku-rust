@@ -210,7 +210,7 @@ pub fn game_loop(mut game_state: GameState) {
             println!("Winner {} at turn {}", game_state.player, game_state.turn);
             process::exit(1)
         }
-        if game_state.used_intersection >= game_state.goban.size {
+        if game_state.used_intersection >= game_state.goban.size * game_state.goban.size {
             println!("Draw at turn {}", game_state.turn);
             process::exit(1)
         }
