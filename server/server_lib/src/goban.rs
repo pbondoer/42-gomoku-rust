@@ -6,105 +6,88 @@ use crate::types::*;
 impl fmt::Display for Intersection {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Intersection::Player1 => write!(f, "Player1"),
-            Intersection::Player2 => write!(f, "Player2"),
+            Intersection::Player1 => write!(f, "1"),
+            Intersection::Player2 => write!(f, "2"),
             Intersection::None => write!(f, "None"),
         }
     }
 }
 
 //Goban Display Trait
-const UP_LEFT: char = '\u{2554}';
-const UP_RIGHT: char = '\u{2557}';
-const UP_SEP: char = '\u{2566}';
-const HORI_SEP: char = '\u{2550}';
-const VERTI_SEP: char = '\u{2551}';
-const DOWN_LEFT: char = '\u{255A}';
-const DOWN_RIGHT: char = '\u{255D}';
-const DOWN_SEP: char = '\u{2569}';
+const UP_LEFT: char = '\u{250C}';
+const UP_RIGHT: char = '\u{2510}';
+const UP_SEP: char = '\u{252C}';
+const UP: [char; 3] = [UP_LEFT, UP_RIGHT, UP_SEP];
+
+const MID_LEFT: char = '\u{251C}';
+const MID_RIGHT: char = '\u{2524}';
+const MID_SEP: char = '\u{253C}';
+const MID: [char; 3] = [MID_LEFT, MID_RIGHT, MID_SEP];
+
+const DOWN_LEFT: char = '\u{2514}';
+const DOWN_RIGHT: char = '\u{2518}';
+const DOWN_SEP: char = '\u{2534}';
+const DOWN: [char; 3] = [DOWN_LEFT, DOWN_RIGHT, DOWN_SEP];
+
+const HORI_SEP: char = '\u{2500}';
+const VERTI_SEP: char = '\u{2502}';
+
 const RET_LINE: char = '\n';
-const MID_LEFT: char = '\u{2560}';
-const MID_RIGHT: char = '\u{2563}';
-const MID_SEP: char = '\u{256C}';
-const PLAYER_1: char = 'X';
-const PLAYER_2: char = 'O';
-const PLAYER_NONE: char = ' ';
-const ERROR: char = 'E';
+
+const PLAYER_1: char = '\u{25CF}'; // black
+const PLAYER_2: char = '\u{25CB}'; // white
+
+const SPACE: char = ' ';
 
 #[inline]
-fn first_line(buff: &mut String, size: Size) {
-    buff.push(UP_LEFT);
-    for x in 0..size {
-        buff.push(HORI_SEP);
-        if x != size - 1 {
-            buff.push(UP_SEP);
-        }
+fn draw_intersection(x: Size, size: Size, chars: [char; 3]) -> char {
+    match x {
+        0 => chars[0],
+        _ if (x == size - 1) => chars[1],
+        _ => chars[2],
     }
-    buff.push(UP_RIGHT);
-    buff.push(RET_LINE);
-}
-
-#[inline]
-fn last_line(buff: &mut String, size: Size) {
-    buff.push(DOWN_LEFT);
-    for x in 0..size {
-        buff.push(HORI_SEP);
-        if x != size - 1 {
-            buff.push(DOWN_SEP);
-        }
-    }
-    buff.push(DOWN_RIGHT);
-    buff.push(RET_LINE);
-}
-
-#[inline]
-fn seperation_line(buff: &mut String, size: Size) {
-    buff.push(MID_LEFT);
-    for x in 0..size {
-        buff.push(HORI_SEP);
-        if x != size - 1 {
-            buff.push(MID_SEP);
-        }
-    }
-    buff.push(MID_RIGHT);
-    buff.push(RET_LINE);
-}
-
-#[inline]
-fn goban_line(buff: &mut String, cur_line: Size, goban: &Goban) {
-    buff.push(VERTI_SEP);
-    for x in 0..goban.size {
-        if let Some(value) = goban.board.get(cur_line * goban.size + x) {
-            match value {
-                Intersection::Player1 => buff.push(PLAYER_1),
-                Intersection::Player2 => buff.push(PLAYER_2),
-                Intersection::None => buff.push(PLAYER_NONE),
-            }
-        } else {
-            buff.push(ERROR);
-        }
-        buff.push(VERTI_SEP);
-    }
-    buff.push(RET_LINE);
 }
 
 impl fmt::Display for Goban {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        //alloc
-        let vertical_size = self.size * 2 + 1;
-        let horizontal_size = vertical_size + 1;
-        let mut to_display: String = String::with_capacity(horizontal_size * vertical_size);
+        let mut display: String = String::new();
 
-        //display
-        first_line(&mut to_display, self.size);
-        for x in 0..self.size {
-            goban_line(&mut to_display, x, &self);
-            if x != self.size - 1 {
-                seperation_line(&mut to_display, self.size);
+        for y in 0..self.size {
+            for x in 0..self.size {
+                if let Some(value) = self.board.get(y * self.size + x) {
+                    match value {
+                        Intersection::Player1 => display.push(PLAYER_1),
+                        Intersection::Player2 => display.push(PLAYER_2),
+                        Intersection::None => {
+                            if y == 0 {
+                                display.push(draw_intersection(x, self.size, UP));
+                            } else if y == self.size - 1 {
+                                display.push(draw_intersection(x, self.size, DOWN));
+                            } else {
+                                display.push(draw_intersection(x, self.size, MID));
+                            }
+                        }
+                    }
+                } else {
+                    panic!("This should not be possible");
+                }
+                display.push(HORI_SEP);
+            }
+            display.pop();
+            display.push(RET_LINE);
+
+            // draw separator
+            if y != self.size - 1 {
+                for _ in 0..self.size {
+                    display.push(VERTI_SEP);
+                    display.push(SPACE);
+                }
+                display.pop();
+                display.push(RET_LINE);
             }
         }
-        last_line(&mut to_display, self.size);
-        write!(f, "{}", to_display)
+
+        write!(f, "{}", display)
     }
 }
 
