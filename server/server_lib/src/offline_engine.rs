@@ -6,28 +6,28 @@ use crate::types::Intersection::*;
 use crate::types::*;
 
 impl GameArgs {
-	pub fn new() -> GameArgs {
-		GameArgs {
-			board_size : GobanSize::Large,
-			game_type : GameType::PlayerVsPlayer,
-			start_cond : StartConditions::Standard,
-			debug : false,
-		}
-	}
+    pub fn new() -> GameArgs {
+        GameArgs {
+            board_size: GobanSize::Large,
+            game_type: GameType::PlayerVsPlayer,
+            start_cond: StartConditions::Standard,
+            debug: false,
+        }
+    }
 }
 
 impl GameState {
-    pub fn new(game_args : GameArgs) -> GameState {
+    pub fn new(game_args: GameArgs) -> GameState {
         GameState {
             goban: Goban::new(game_args.board_size),
             game_type: game_args.game_type,
             start_cond: game_args.start_cond,
             turn: 0,
             player: Player1,
-			p1_stone_taken : 0,
-			p2_stone_taken : 0,
-			debug : game_args.debug,
-			used_intersection : 0,
+            p1_stone_taken: 0,
+            p2_stone_taken: 0,
+            debug: game_args.debug,
+            used_intersection: 0,
         }
     }
 }
@@ -192,21 +192,22 @@ pub fn game_loop(mut game_state: GameState) {
                 Err(err) => println!("Error : {}", err),
             }
         }
-		//TODO : change this when capture detection added
-		game_state.used_intersection += 1;
-		if (game_state.player == Player1 && game_state.p1_stone_taken >= STONE_TAKEN_MAX) || 
-			(game_state.player == Player1 && game_state.p2_stone_taken >= STONE_TAKEN_MAX) {
+        //TODO : change this when capture detection added
+        game_state.used_intersection += 1;
+        if (game_state.player == Player1 && game_state.p1_stone_taken >= STONE_TAKEN_MAX)
+            || (game_state.player == Player1 && game_state.p2_stone_taken >= STONE_TAKEN_MAX)
+        {
             println!("Winner {} at turn {}", game_state.player, game_state.turn);
             process::exit(1)
-		}
+        }
         if check_board_victory(&game_state.goban) == true {
             println!("Winner {} at turn {}", game_state.player, game_state.turn);
             process::exit(1)
         }
-		if game_state.used_intersection >= game_state.goban.size {
+        if game_state.used_intersection >= game_state.goban.size {
             println!("Draw at turn {}", game_state.turn);
             process::exit(1)
-		}
+        }
         match game_state.player {
             Player1 => game_state.player = Player2,
             Player2 => game_state.player = Player1,

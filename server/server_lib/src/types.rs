@@ -5,12 +5,11 @@ pub enum Intersection {
     None,
 }
 
-pub static STONE_TAKEN_MAX : Size = 10;
+pub static STONE_TAKEN_MAX: Size = 10;
 
 pub type Size = usize;
 pub type Board = Vec<Intersection>;
 pub type Move = (Size, Size);
-
 #[derive(Copy, Clone)]
 pub enum GobanSize {
     Small = 9,
@@ -43,15 +42,15 @@ pub struct GameState {
     pub start_cond: StartConditions,
     pub turn: Size,
     pub player: Intersection,
-	pub p1_stone_taken : Size,
-	pub p2_stone_taken : Size,
-	pub debug : bool,
-	pub used_intersection : Size,
+    pub p1_stone_taken: Size,
+    pub p2_stone_taken: Size,
+    pub debug: bool,
+    pub used_intersection: Size,
 }
 
 pub struct GameArgs {
-	pub board_size : GobanSize,
-	pub game_type : GameType,
-	pub start_cond : StartConditions,
-	pub debug : bool,	
+    pub board_size: GobanSize,
+    pub game_type: GameType,
+    pub start_cond: StartConditions,
+    pub debug: bool,
 }
