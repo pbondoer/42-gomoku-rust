@@ -2,8 +2,8 @@ use std::io;
 use std::io::prelude::*;
 use std::process;
 
-use types::Intersection::*;
-use types::*;
+use crate::types::Intersection::*;
+use crate::types::*;
 
 impl GameArgs {
 	pub fn new() -> GameArgs {

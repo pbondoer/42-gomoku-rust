@@ -1,6 +1,6 @@
 use std::fmt;
 
-use types::*;
+use crate::types::*;
 
 //Intersection Display Trait
 impl fmt::Display for Intersection {
