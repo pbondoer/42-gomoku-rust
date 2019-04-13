@@ -1,0 +1,28 @@
+#!/bin/bash
+
+files=$(git diff --cached --name-only --diff-filter=AM)
+
+# 1. Format with rustfmt
+for val in $files
+do
+	if [[ "$val" == *.rs ]]
+	then
+		echo "Formatting $val"
+		rustfmt "$val"
+		git add "$val"
+	fi
+done
+
+echo
+
+cd server || exit 1
+
+# 2. Clippy
+cargo check
+cargo check -p server_lib
+
+echo
+
+# 3. Test
+cargo test
+cargo test -p server_lib

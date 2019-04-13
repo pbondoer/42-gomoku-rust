@@ -103,9 +103,17 @@ impl Goban {
         }
     }
 
-    //TODO : implement other case of invalid move detection
-    fn is_move_valid(goban: &Goban, pos: Size) -> Result<(), &'static str> {
-        match goban.board.get(pos) {
+    fn is_move_valid(&self, pos: Move) -> Result<(), &'static str> {
+        // out of bounds check
+        if pos.0 >= self.size || pos.1 >= self.size {
+            return Err(ERR_OUTSIDE_BOARD);
+        }
+
+        // TODO: implement other case of invalid move detection
+        //  - double-three case
+
+        // check if it is empty
+        match self.get(pos) {
             Some(Intersection::None) => Ok(()),
             Some(_) => Err(ERR_NOT_EMPTY),
             None => Err(ERR_OUTSIDE_BOARD),
@@ -113,16 +121,19 @@ impl Goban {
     }
 
     //pos Tuple => 0 = line | 1 = column
-    pub fn play(&mut self, player: Intersection, pos: Move) -> Result<(), &'static str> {
-        let board_pos = pos.0 * self.size + pos.1;
+    pub fn set(&mut self, pos: Move, player: Intersection) {
+        self.board[pos.0 * self.size + pos.1] = player;
+    }
 
-        if pos.0 >= self.size || pos.1 >= self.size {
-            return Err(ERR_OUTSIDE_BOARD)
-        }
+    pub fn get(&self, pos: Move) -> Option<&Intersection> {
+        self.board.get(pos.0 * self.size + pos.1)
+    }
 
-        Goban::is_move_valid(&self, board_pos)?;
-        self.board[board_pos] = player;
-        Ok(())
+    pub fn play(&mut self, player: Intersection, pos: Move) -> Result<Size, &'static str> {
+        self.is_move_valid(pos)?;
+        // TODO: captures
+        self.set(pos, player);
+        Ok(1)
     }
 }
 
@@ -165,6 +176,6 @@ mod tests {
         let mut goban = Goban::new(GobanSize::Large);
 
         assert_eq!(goban.size, GobanSize::Large as Size);
-        assert_eq!(Ok(()), goban.play(Player1, (10, 5)));
+        assert_eq!(Ok(1), goban.play(Player1, (10, 5)));
     }
 }

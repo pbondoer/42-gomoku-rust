@@ -187,42 +187,43 @@ fn check_board_victory(goban: &Goban) -> bool {
 }
 
 //TODO : handling GameType, StartConditions
-pub fn game_loop(mut game_state: GameState) {
+pub fn game_loop(mut state: GameState) {
     loop {
         let mut loop_read_input = true;
 
-        println!("Player {} turn.\n{}", game_state.player, game_state.goban);
+        println!("Player {} turn.\n{}", state.player, state.goban);
         while loop_read_input {
-            match game_state.goban.play(game_state.player, parse_input()) {
-                Ok(()) => loop_read_input = false,
+            match state.goban.play(state.player, parse_input()) {
+                Ok(used) => {
+                    state.used_intersection += used;
+                    loop_read_input = false;
+                }
                 Err(err) => println!("Error : {}", err),
             }
         }
-        //TODO : change this when capture detection added
-        game_state.used_intersection += 1;
-        if (game_state.player == Player1 && game_state.p1_stone_taken >= STONE_TAKEN_MAX)
-            || (game_state.player == Player2 && game_state.p2_stone_taken >= STONE_TAKEN_MAX)
+        if (state.player == Player1 && state.p1_stone_taken >= STONE_TAKEN_MAX)
+            || (state.player == Player2 && state.p2_stone_taken >= STONE_TAKEN_MAX)
         {
-            println!("Winner {} at turn {}", game_state.player, game_state.turn);
+            println!("Winner {} at turn {}", state.player, state.turn);
             process::exit(1)
         }
-        if check_board_victory(&game_state.goban) {
-            println!("Winner {} at turn {}", game_state.player, game_state.turn);
+        if check_board_victory(&state.goban) {
+            println!("Winner {} at turn {}", state.player, state.turn);
             process::exit(1)
         }
-        if game_state.used_intersection >= game_state.goban.size * game_state.goban.size {
-            println!("Draw at turn {}", game_state.turn);
+        if state.used_intersection >= state.goban.size * state.goban.size {
+            println!("Draw at turn {}", state.turn);
             process::exit(1)
         }
-        match game_state.player {
-            Player1 => game_state.player = Player2,
-            Player2 => game_state.player = Player1,
+        match state.player {
+            Player1 => state.player = Player2,
+            Player2 => state.player = Player1,
             None => {
                 println!("GameState player should not be at none, exiting");
                 process::exit(1)
             }
         }
-        game_state.turn += 1;
+        state.turn += 1;
     }
 }
 
