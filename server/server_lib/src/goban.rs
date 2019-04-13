@@ -95,6 +95,17 @@ impl fmt::Display for Goban {
 pub static ERR_OUTSIDE_BOARD: &'static str = "Move outside goban board";
 pub static ERR_NOT_EMPTY: &'static str = "Intersection is not empty";
 
+static ALIGNMENTS: &'static [(i32, i32)] = &[
+    (-1, -1),
+    (0, -1),
+    (1, -1),
+    (-1, 0),
+    (1, 0),
+    (-1, 1),
+    (0, 1),
+    (1, 1),
+];
+
 impl Goban {
     pub fn new(size: GobanSize) -> Goban {
         Goban {
@@ -120,6 +131,27 @@ impl Goban {
         }
     }
 
+    fn check_capture(&self, pos: Move) -> bool {
+        for item in ALIGNMENTS {
+            let x = pos.0 as i32 + item.0;
+            let y = pos.1 as i32 + item.1;
+
+            if x < 0 || y < 0 {
+                continue;
+            }
+
+            match self.get((x as Size, y as Size)) {
+                Option::None => continue,
+                value => match value.unwrap() {
+                    Intersection::None => continue,
+                    Intersection::Player1 => println!("Found player 1"),
+                    Intersection::Player2 => println!("Found player 2"),
+                },
+            }
+        }
+        true
+    }
+
     //pos Tuple => 0 = line | 1 = column
     pub fn set(&mut self, pos: Move, player: Intersection) {
         self.board[pos.0 * self.size + pos.1] = player;
@@ -131,7 +163,8 @@ impl Goban {
 
     pub fn play(&mut self, player: Intersection, pos: Move) -> Result<Size, &'static str> {
         self.is_move_valid(pos)?;
-        // TODO: captures
+        self.check_capture(pos);
+
         self.set(pos, player);
         Ok(1)
     }
