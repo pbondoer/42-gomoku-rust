@@ -2,7 +2,8 @@ use std::io;
 use std::io::prelude::*;
 use std::process;
 
-use crate::types::Intersection::*;
+use crate::types::Intersection::Player1;
+use crate::types::Intersection::Player2;
 use crate::types::*;
 
 impl GameArgs {
@@ -38,12 +39,12 @@ impl GameState {
     }
 }
 
-pub static ERR_INVALID_NUMBER: &'static str = "Error : Invalid Number";
-pub static ERR_STDIN_FAILED: &'static str = "Error : failed to read stdin";
-pub static ERR_EMPTY_LINE: &'static str = "Error : empty string";
+pub static ERR_INVALID_NUMBER: Error = "Error : Invalid Number";
+pub static ERR_STDIN_FAILED: Error = "Error : failed to read stdin";
+pub static ERR_EMPTY_LINE: Error = "Error : empty string";
 
 #[inline]
-fn parse_nb_from_stdin() -> Result<Size, &'static str> {
+fn parse_nb_from_stdin() -> Result<Size, Error> {
     let stdin = io::stdin();
     let it = stdin.lock().lines().next();
     match it {
@@ -54,7 +55,7 @@ fn parse_nb_from_stdin() -> Result<Size, &'static str> {
             },
             Err(_) => Err(ERR_STDIN_FAILED),
         },
-        Option::None => Err(ERR_EMPTY_LINE),
+        None => Err(ERR_EMPTY_LINE),
     }
 }
 
@@ -100,7 +101,7 @@ fn check_line_right(goban: &Goban, array_index: Size) -> bool {
                     return false;
                 }
             }
-            Option::None => return false,
+            None => return false,
         }
     }
     true
@@ -116,7 +117,7 @@ fn check_column_down(goban: &Goban, array_index: Size) -> bool {
                     return false;
                 }
             }
-            Option::None => return false,
+            None => return false,
         }
     }
     true
@@ -137,7 +138,7 @@ fn check_diagonal_down_right(goban: &Goban, array_index: Size) -> bool {
                     return false;
                 }
             }
-            Option::None => return false,
+            None => return false,
         }
     }
     true
@@ -158,7 +159,7 @@ fn check_diagonal_down_left(goban: &Goban, array_index: Size) -> bool {
                     return false;
                 }
             }
-            Option::None => return false,
+            None => return false,
         }
     }
     true
@@ -195,7 +196,11 @@ pub fn game_loop(mut state: GameState) {
         while loop_read_input {
             match state.goban.play(state.player, parse_input()) {
                 Ok(used) => {
-                    state.used_intersection += used;
+                    let val = state.used_intersection as Delta + used;
+                    if val < 0 {
+                        panic!("Used tiles went negative, this should never happen");
+                    }
+                    state.used_intersection = val as Size;
                     loop_read_input = false;
                 }
                 Err(err) => println!("Error : {}", err),
@@ -218,7 +223,7 @@ pub fn game_loop(mut state: GameState) {
         match state.player {
             Player1 => state.player = Player2,
             Player2 => state.player = Player1,
-            None => {
+            Intersection::None => {
                 println!("GameState player should not be at none, exiting");
                 process::exit(1)
             }

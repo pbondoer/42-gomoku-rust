@@ -7,9 +7,12 @@ pub enum Intersection {
 
 pub static STONE_TAKEN_MAX: Size = 10;
 
+pub type Error = &'static str;
+pub type Delta = isize;
 pub type Size = usize;
 pub type Board = Vec<Intersection>;
 pub type Move = (Size, Size);
+
 #[derive(Copy, Clone)]
 pub enum GobanSize {
     Small = 9,
