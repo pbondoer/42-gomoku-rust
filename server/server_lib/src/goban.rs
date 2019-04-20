@@ -65,12 +65,14 @@ impl Goban {
         }
     }
 
-    fn check_capture(&mut self, pos: Move, player: Intersection) -> bool {
+    fn check_capture(&mut self, pos: Move, player: Intersection) -> Delta {
         let enemy = if player == Intersection::Player1 {
             Intersection::Player2
         } else {
             Intersection::Player1
         };
+
+        let mut captured = 0;
 
         for align in ALIGNMENTS {
             let enemy1 = self.check_alignment(pos, *align, 1, enemy);
@@ -87,10 +89,10 @@ impl Goban {
             self.set(enemy1.unwrap(), Intersection::None).unwrap();
             self.set(enemy2.unwrap(), Intersection::None).unwrap();
 
-            return true;
+            captured += 2;
         }
 
-        false
+        captured
     }
 
     //pos Tuple => 0 = line | 1 = column
@@ -116,9 +118,7 @@ impl Goban {
         let mut changed = 1;
 
         self.is_move_valid(pos)?;
-        if self.check_capture(pos, player) {
-            changed -= 2
-        };
+        changed -= self.check_capture(pos, player);
 
         self.set(pos, player)?;
         Ok(changed)
@@ -191,13 +191,37 @@ mod test {
         goban.set((0, 2), Player2).unwrap();
         goban.set((0, 3), Player1).unwrap();
 
-        assert_eq!(true, goban.check_capture((0, 3), Player1));
+        assert_eq!(2, goban.check_capture((0, 3), Player1));
 
         // check that the capture has been performed
         assert_eq!(Ok(Player1), goban.get((0, 0)));
         assert_eq!(Ok(Intersection::None), goban.get((0, 1)));
         assert_eq!(Ok(Intersection::None), goban.get((0, 2)));
         assert_eq!(Ok(Player1), goban.get((0, 3)));
+    }
+
+    #[test]
+    fn check_capture_double() {
+        let mut goban = Goban::new(GobanSize::Large);
+
+        goban.set((0, 0), Player1).unwrap();
+        goban.set((0, 1), Player2).unwrap();
+        goban.set((0, 2), Player2).unwrap();
+        goban.set((0, 3), Player1).unwrap();
+        goban.set((0, 4), Player2).unwrap();
+        goban.set((0, 5), Player2).unwrap();
+        goban.set((0, 6), Player1).unwrap();
+
+        assert_eq!(4, goban.check_capture((0, 3), Player1));
+
+        // check that the capture has been performed
+        assert_eq!(Ok(Player1), goban.get((0, 0)));
+        assert_eq!(Ok(Intersection::None), goban.get((0, 1)));
+        assert_eq!(Ok(Intersection::None), goban.get((0, 2)));
+        assert_eq!(Ok(Player1), goban.get((0, 3)));
+        assert_eq!(Ok(Intersection::None), goban.get((0, 4)));
+        assert_eq!(Ok(Intersection::None), goban.get((0, 5)));
+        assert_eq!(Ok(Player1), goban.get((0, 6)));
     }
 
     #[test]
@@ -208,16 +232,16 @@ mod test {
         goban.set((0, 0), Player1).unwrap();
         goban.set((0, 1), Player2).unwrap();
 
-        assert_eq!(false, goban.check_capture((0, 2), Player1));
+        assert_eq!(0, goban.check_capture((0, 2), Player1));
 
         // X O . X is not a capture
-        assert_eq!(false, goban.check_capture((0, 3), Player1));
+        assert_eq!(0, goban.check_capture((0, 3), Player1));
 
         // X O O O X is not a capture
         goban.set((0, 2), Player2).unwrap();
         goban.set((0, 3), Player2).unwrap();
 
-        assert_eq!(false, goban.check_capture((0, 4), Player1));
+        assert_eq!(0, goban.check_capture((0, 4), Player1));
     }
 
     // check_alignment
