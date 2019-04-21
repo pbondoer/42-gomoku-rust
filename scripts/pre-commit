@@ -19,10 +19,10 @@ cd server || exit 1
 
 # 2. Clippy
 cargo check
-cargo check -p server_lib
+cargo check -p gomoku_lib
 
 echo
 
 # 3. Test
 cargo test
-cargo test -p server_lib
+cargo test -p gomoku_lib

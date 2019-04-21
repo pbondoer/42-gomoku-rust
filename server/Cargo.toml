@@ -8,7 +8,15 @@ authors = [
 edition = "2018"
 
 [dependencies]
-server_lib = { path = "./server_lib" }
+gomoku_lib = { path = "./gomoku_lib" }
+
+[[bin]]
+name = "termoku"
+path = "src/termoku/main.rs"
+
+[[bin]]
+name = "server_moku"
+path = "src/server_moku/main.rs"
 
 [profile.release]
 lto = true

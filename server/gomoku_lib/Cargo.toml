@@ -1,5 +1,5 @@
 [package]
-name = "server_lib"
+name = "gomoku_lib"
 version = "0.1.0"
 authors = [
 	"cledant <cledant@student.42.fr>",

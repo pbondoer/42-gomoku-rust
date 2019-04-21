@@ -1,10 +1,10 @@
-extern crate server_lib;
+extern crate gomoku_lib;
 
 use std::env;
 use std::process;
 
-use server_lib::offline_engine;
-use server_lib::types::*;
+use gomoku_lib::offline_engine;
+use gomoku_lib::types::*;
 
 static STR_HELP: &'static str = "Gomoku offline args :
 
